@@ -7,7 +7,7 @@
     
     <script>
         /** * 👨‍🏫 教師自訂區：請在下方引號內填入您的 Google 表單繳交連結 
-         * 修改此處後儲存，再將檔案發給學生，連結就會生效。
+         * 修改此處後儲存檔案，再將檔案發送給學生即可。
          */
         const TEACHER_FORM_URL = "https://forms.gle/p1iWDPmiNWHtadKi7";
     </script>
@@ -54,7 +54,7 @@
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #2c3e50; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .paper { width: 850px; background-color: white; padding: 30px 40px; position: relative; box-shadow: 10px 10px 0px rgba(0,0,0,0.2); border-radius: 5px; }
         
-        /* 文字溢出與自動換行修正 */
+        /* 核心修正：長文字自動換行樣式 */
         textarea { 
             width: 100%; border: none; background: transparent; resize: none; outline: none; 
             font-family: inherit; font-size: 14px; line-height: 1.5; 
@@ -70,6 +70,7 @@
         .author-tag { font-size: 14px; color: #666; font-weight: bold; background: #f1f1f1; padding: 4px 12px; border-radius: 12px; display: inline-block; margin-bottom: 15px; border: 1px solid #ccc; }
         .pushpin { width: 10px; height: 10px; background-color: var(--accent); border-radius: 50%; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); z-index: 5; box-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
 
+        /* 任務選擇區 */
         .mission-selector { margin-top: 80px; text-align: center; }
         .step-title { font-size: 18px; color: #2c3e50; font-weight: bold; margin: 15px 0 10px; display: block; }
         .mission-btn { padding: 8px 16px; margin: 4px; border-radius: 20px; border: 1px solid #ccc; background: white; cursor: pointer; font-size: 14px; transition: 0.2s; }
@@ -81,6 +82,7 @@
         .platform-box { background-color: #f0f4f8; padding: 12px; border-radius: 8px; margin: 10px 0 20px; display: flex; align-items: center; justify-content: center; gap: 15px; border: 1px solid #d1d9e0; }
         .platform-link { background-color: #2c3e50; color: white; padding: 8px 18px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 13px; }
         
+        /* 填寫區塊排版 */
         .info-section { display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 15px; margin-bottom: 15px; }
         .input-box { background-color: var(--green); padding: 10px; position: relative; border-radius: 3px; }
         .report-main { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
@@ -94,6 +96,7 @@
         .char-count { position: absolute; bottom: 3px; right: 8px; font-size: 9px; color: #777; }
         .warning-msg { color: #d32f2f; font-size: 9px; position: absolute; bottom: 3px; left: 8px; display: none; }
         
+        /* 按鈕區 */
         .btn-area { margin-top: 20px; width: 850px; display: flex; flex-direction: column; gap: 12px; }
         .progress-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #ecf0f1; padding: 15px; border-radius: 8px; border: 1px dashed #bdc3c7; }
         .btn-work { padding: 12px; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold; }
@@ -109,11 +112,11 @@
         <h2>一頁式閱讀報告</h2>
         <div class="author">小壁虎老師設計</div>
         <div class="step-list">
-            <div class="step-item"><span class="step-num">1</span><div><strong>選任務：</strong> 點選諮詢個案，讀懂他的煩惱。</div></div>
+            <div class="step-item"><span class="step-num">1</span><div><strong>選任務：</strong> 點選一個諮詢個案，讀懂他的煩惱。</div></div>
             <div class="step-item"><span class="step-num">2</span><div><strong>找寶藏：</strong> 到電子書平台選「凌網」找答案。</div></div>
             <div class="step-item"><span class="step-num">3</span><div><strong>做筆記：</strong> 格子變綠色才合格（需滿10字）。</div></div>
             <div class="step-item"><span class="step-num">4</span><div><strong>存檔案：</strong> 沒寫完下載「進度檔」，下次可繼續。</div></div>
-            <div class="step-item"><span class="step-num">5</span><div><strong>交報告：</strong> 寫完下載 PDF 並繳交。</div></div>
+            <div class="step-item"><span class="step-num">5</span><div><strong>交報告：</strong> 寫完下載 PDF 並到表單繳交。</div></div>
         </div>
         <div class="checkbox-area">
             <input type="checkbox" id="read-confirm" onchange="toggleStartBtn()">
@@ -128,7 +131,7 @@
     <div class="instruction-tag">
         ✨ 閱讀一本書的方法：<br>
         1. 針對書名問一個問題<br>
-        2. 從目錄挑選可回答問題的章節<br>
+        2. 從目錄挑選可以回答提問的章節<br>
         3. 先看章節的第一段和最後一段<br>
         4. 邊看邊做紀錄
     </div>
@@ -200,11 +203,11 @@
     </div>
     <button class="btn-finish" onclick="exportPDF()">✅ 下載 PDF 報告</button>
     <a id="final-submit-link" href="#" target="_blank" class="form-link-btn">🚀 點我繳交報告給老師</a>
-    <button class="reset-btn" onclick="resetForm()">⚠️ 清空重新開始</button>
+    <button class="reset-btn" onclick="resetForm()">⚠️ 清空所有內容重新開始</button>
 </div>
 
 <script>
-    // 初始化教師表單連結
+    // 設定繳交連結
     document.getElementById('final-submit-link').href = TEACHER_FORM_URL;
 
     function toggleStartBtn() { document.getElementById('start-btn').disabled = !document.getElementById('read-confirm').checked; }
@@ -286,8 +289,13 @@
         document.getElementById('mission-ui').style.display = 'none';
         
         try {
+            // 修正：匯出時強制隱藏捲軸，確保長文字不被截斷
             document.querySelectorAll('textarea').forEach(t => t.style.overflowY = 'hidden');
-            const canvas = await html2canvas(document.getElementById('pdf-area'), { scale: 2 });
+            const canvas = await html2canvas(document.getElementById('pdf-area'), { 
+                scale: 2,
+                logging: false,
+                useCORS: true
+            });
             const { jsPDF } = window.jspdf; 
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pageWidth = pdf.internal.pageSize.getWidth();
