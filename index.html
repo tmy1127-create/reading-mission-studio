@@ -11,7 +11,6 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         :root {
@@ -23,7 +22,7 @@
             --submit-blue: #1a73e8;
         }
 
-        /* 啟動頁遮罩 */
+        /* 啟動頁樣式 */
         #welcome-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -52,12 +51,12 @@
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #2c3e50; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .paper { width: 850px; background-color: white; padding: 30px 40px; position: relative; box-shadow: 10px 10px 0px rgba(0,0,0,0.2); border-radius: 5px; }
         
-        /* 核心修正：強制文字換行並隱藏捲軸 */
+        /* 解決文字截斷的關鍵設定 */
         textarea { 
             width: 100%; border: none; background: transparent; resize: none; outline: none; 
             font-family: inherit; font-size: 14px; line-height: 1.5; 
             overflow-wrap: break-word; word-wrap: break-word; white-space: pre-wrap;
-            overflow-y: hidden; /* 匯出時關鍵：防止捲軸出現導致文字截斷 */
+            overflow-y: auto;
         }
 
         .instruction-tag { background-color: var(--yellow); padding: 12px; width: 250px; position: absolute; top: 20px; left: 20px; font-size: 12px; transform: rotate(-2deg); box-shadow: 2px 2px 5px rgba(0,0,0,0.1); line-height: 1.5; z-index: 10; }
@@ -74,7 +73,6 @@
         .mission-btn.active { background: var(--green); border-color: #4caf50; font-weight: bold; }
         
         #mission-briefing { display: none; background-color: #fff3e0; border: 2px dashed #ff9800; padding: 15px; margin: 15px 0; border-radius: 8px; font-size: 15px; text-align: left; }
-        .keyword-tag { background-color: #ffe0b2; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
         
         .platform-box { background-color: #f0f4f8; padding: 12px; border-radius: 8px; margin: 10px 0 20px; display: flex; align-items: center; justify-content: center; gap: 15px; border: 1px solid #d1d9e0; }
         .platform-link { background-color: #2c3e50; color: white; padding: 8px 18px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 13px; }
@@ -85,6 +83,7 @@
         .nine-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; } 
         .grid-cell { background-color: var(--green); height: 110px; padding: 8px; position: relative; border-radius: 3px; overflow: hidden; display: flex; flex-direction: column; }
         .grid-cell textarea { flex-grow: 1; }
+        
         .side-column { display: flex; flex-direction: column; gap: 12px; }
         .pink-box { background-color: var(--pink); height: 230px; padding: 15px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
         .pink-box textarea { flex-grow: 1; }
@@ -111,10 +110,10 @@
         <div class="author">小壁虎老師設計</div>
         <div class="step-list">
             <div class="step-item"><span class="step-num">1</span><div><strong>選任務：</strong> 讀懂個案煩惱。</div></div>
-            <div class="step-item"><span class="step-num">2</span><div><strong>找寶藏：</strong> 電子書平台選「凌網」。</div></div>
-            <div class="step-item"><span class="step-num">3</span><div><strong>做筆記：</strong> 格子需滿10字。</div></div>
-            <div class="step-item"><span class="step-num">4</span><div><strong>存檔案：</strong> 下載「進度檔」可續寫。</div></div>
-            <div class="step-item"><span class="step-num">5</span><div><strong>交報告：</strong> 下載 PDF 繳交。</div></div>
+            <div class="step-item"><span class="step-num">2</span><div><strong>找寶藏：</strong> 到電子書平台選答案。</div></div>
+            <div class="step-item"><span class="step-num">3</span><div><strong>做筆記：</strong> 滿10字格子會變綠。</div></div>
+            <div class="step-item"><span class="step-num">4</span><div><strong>存檔案：</strong> 下載「進度檔」下次繼續。</div></div>
+            <div class="step-item"><span class="step-num">5</span><div><strong>交報告：</strong> 點選橘色按鈕下載報告圖片。</div></div>
         </div>
         <div class="checkbox-area">
             <input type="checkbox" id="read-confirm" onchange="toggleStartBtn()">
@@ -125,12 +124,12 @@
     </div>
 </div>
 
-<div class="paper" id="pdf-area">
+<div class="paper" id="capture-area">
     <div class="instruction-tag">
         ✨ 閱讀一本書的方法：<br>
         1. 針對書名問一個問題<br>
-        2. 從目錄挑選可以回答提問的章節<br>
-        3. 先看章節的第一段和最後一段<br>
+        2. 從目錄挑選可以回答的章節<br>
+        3. 先看第一段和最後一段<br>
         4. 邊看邊做紀錄
     </div>
 
@@ -148,18 +147,15 @@
         <button class="mission-btn" onclick="selectMission('減糖飲食')">🍬 減糖飲食</button>
         <button class="mission-btn" onclick="selectMission('糖尿病')">🩸 糖尿病</button>
         <button class="mission-btn" onclick="selectMission('高血壓')">💓 高血壓</button>
-        <button class="mission-btn" onclick="selectMission('憂鬱症陪伴')">☁️ 憂鬱症</button>
+        <button class="mission-btn" onclick="selectMission('憂鬱症')">☁️ 憂鬱症</button>
         <button class="mission-btn" onclick="selectMission('校園法律')">⚖️ 校園法律</button>
 
         <div id="mission-briefing">
             <strong id="m-title" style="color: #e65100;">📢 任務說明：</strong>
             <span id="m-story"></span>
-            <div id="m-keywords" style="margin-top: 10px; border-top: 1px dashed #ffd180; padding-top: 8px;">
-                <strong>🔍 建議搜尋關鍵字：</strong><span id="keyword-list"></span>
-            </div>
         </div>
 
-        <span class="step-title">2. 前往電子書平台：</span>
+        <span class="step-title">2. 電子書平台：</span>
         <div class="platform-box">
             <a href="https://ebook.moc.gov.tw/" target="_blank" class="platform-link">前往平台</a>
             <span style="color: #e53935; font-weight: bold; font-size: 13px;">⚠️ 點選：<u>凌網 HyRead ebook</u></span>
@@ -169,19 +165,19 @@
 
     <div class="info-section" style="margin-top: 15px;">
         <div class="input-box"><div class="pushpin"></div><input type="text" id="book_title" class="save-val" placeholder="書名："></div>
-        <div class="input-box"><div class="pushpin"></div><textarea id="main_question" class="save-val" placeholder="對書名提出的問題" rows="1"></textarea></div>
+        <div class="input-box"><div class="pushpin"></div><textarea id="main_question" class="save-val" placeholder="提問的問題" rows="1"></textarea></div>
     </div>
 
     <div class="report-main">
         <div class="nine-grid">
             <script>
                 for(let i=1; i<=9; i++) {
-                    document.write(`<div class="grid-cell"><div class="pushpin"></div><textarea id="g${i}" class="save-val" oninput="updateCharCount(this)" placeholder="重點紀錄 ${i}"></textarea><div class="warning-msg">⚠️需滿10字</div><div class="char-count">0 字</div></div>`);
+                    document.write(`<div class="grid-cell"><div class="pushpin"></div><textarea id="g${i}" class="save-val" oninput="updateCharCount(this)" placeholder="重點 ${i}"></textarea><div class="warning-msg">⚠️需滿10字</div><div class="char-count">0 字</div></div>`);
                 }
             </script>
         </div>
         <div class="side-column">
-            <div class="pink-box"><div class="pushpin"></div><textarea id="final_sum" class="save-val" placeholder="九格重點串成段落"></textarea></div>
+            <div class="pink-box"><div class="pushpin"></div><textarea id="final_sum" class="save-val" placeholder="重點串成段落"></textarea></div>
             <div class="blue-box"><div class="pushpin"></div><textarea id="final_act" class="save-val" placeholder="我的行動"></textarea></div>
             <div class="yellow-box">
                 <div class="pushpin"></div>
@@ -198,7 +194,7 @@
         <button class="btn-work" style="background-color: #2980b9;" onclick="document.getElementById('uploadFile').click()">📂 匯入進度檔</button>
         <input type="file" id="uploadFile" style="display:none" accept=".json" onchange="loadProgress(this)">
     </div>
-    <button class="btn-finish" onclick="exportPDF()">✅ 下載 PDF 報告</button>
+    <button class="btn-finish" onclick="exportImage()">📸 下載報告成品 (圖片格式)</button>
     <a id="final-submit-link" href="#" target="_blank" class="form-link-btn">🚀 點我繳交報告給老師</a>
     <button class="reset-btn" onclick="resetForm()">⚠️ 清空重新開始</button>
 </div>
@@ -211,11 +207,11 @@
     
     let currentMissionName = "";
     const missions = { 
-        '減糖飲食': { story: "王老師體檢血糖偏高，請找：除了甜食，還有哪些具體的減糖技巧？", keys: ["減糖", "減重", "低GI"] },
-        '糖尿病': { story: "陳主任爸爸確診糖尿病，請找：日常生活中絕對不能吃的『地雷食物』？", keys: ["糖尿病飲食", "控糖", "血糖管理"] }, 
-        '高血壓': { story: "校長常頭暈，醫生說高血壓。請找：有哪些運動可以幫助降低血壓？", keys: ["高血壓預防", "DASH飲食", "低鈉"] }, 
-        '憂鬱症陪伴': { story: "朋友心情差，請找：陪伴憂鬱的朋友時，哪些話『千萬不能說』？", keys: ["憂鬱症", "心理諮商", "情緒管理"] }, 
-        '校園法律': { story: "小明下課受傷，請找：校園受驚與隱私權受損，法律怎麼說？", keys: ["校園法律", "生活法律", "法律扶助"] } 
+        '減糖飲食': { story: "王老師體檢血糖偏高，請找：除了甜食，還有哪些具體的減糖技巧？" },
+        '糖尿病': { story: "陳主任爸爸確診糖尿病，請找：日常生活中絕對不能吃的『地雷食物』？" }, 
+        '高血壓': { story: "校長常頭暈，醫生說高血壓。請找：有哪些運動可以幫助降低血壓？" }, 
+        '憂鬱症': { story: "朋友心情差，請找：陪伴憂鬱的朋友時，哪些話『千萬不能說』？" }, 
+        '校園法律': { story: "小明下課受傷，請找：校園受驚與隱私權受損，法律怎麼說？" } 
     };
 
     window.onload = () => {
@@ -235,14 +231,6 @@
         document.getElementById('mission-briefing').style.display = 'block';
         document.getElementById('m-title').innerText = "📢 任務個案：" + name;
         document.getElementById('m-story').innerText = missions[name].story;
-        const kList = document.getElementById('keyword-list');
-        kList.innerHTML = "";
-        missions[name].keys.forEach(k => {
-            const span = document.createElement('span');
-            span.className = 'keyword-tag';
-            span.innerText = k;
-            kList.appendChild(span);
-        });
     }
 
     function updateCharCount(el) {
@@ -257,7 +245,7 @@
         data['activeMission'] = currentMissionName;
         const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
         const a = document.createElement('a'); const name = document.getElementById('user_name').value.trim() || "學生";
-        a.href = URL.createObjectURL(blob); a.download = `閱讀報告存檔_${name}.json`; a.click();
+        a.href = URL.createObjectURL(blob); a.download = `進度_${name}.json`; a.click();
     }
 
     function loadProgress(input) {
@@ -271,55 +259,50 @@
                     else { const el = document.getElementById(key); if (el) { el.value = data[key]; localStorage.setItem(key, data[key]); if(el.tagName === 'TEXTAREA' && el.id.startsWith('g')) updateCharCount(el); } }
                 });
                 alert("進度已恢復！");
-            } catch (err) { alert("讀取失敗"); }
+            } catch (err) { alert("格式不對"); }
         };
         reader.readAsText(file);
     }
 
     function resetForm() { if(confirm("確定要清空嗎？資料將無法救回。")) { localStorage.clear(); location.reload(); } }
 
-    /** 🚀 修正文字截斷的核心函數 */
-    async function exportPDF() {
+    /** 📸 核心修正：將原本破碎的 PDF 改為完美的圖片匯出 */
+    async function exportImage() {
         const btn = document.querySelector('.btn-finish'); 
         const name = document.getElementById('user_name').value.trim() || "學生";
-        btn.innerText = "優化排版中，請稍候..."; 
+        btn.innerText = "產出圖片中..."; 
         document.getElementById('mission-ui').style.display = 'none';
         
-        // 1. 取得所有輸入框，並紀錄原始高度
+        // 自動調整所有文字框高度以顯示完整內容
         const textAreas = document.querySelectorAll('textarea');
         const originalHeights = [];
-        
-        // 2. 暫時將格子撐開到文字完整長度
         textAreas.forEach((ta, index) => {
             originalHeights[index] = ta.style.height;
             ta.style.height = 'auto';
-            ta.style.height = (ta.scrollHeight) + 'px'; 
-            ta.parentElement.style.height = 'auto'; // 同步調整容器
-            ta.parentElement.style.minHeight = (ta.scrollHeight + 20) + 'px';
+            ta.style.height = ta.scrollHeight + 'px';
+            ta.style.overflowY = 'hidden'; // 暫時關閉捲軸以利截圖
         });
 
         try {
-            const canvas = await html2canvas(document.getElementById('pdf-area'), { 
-                scale: 2, 
-                useCORS: true,
-                windowWidth: 850
+            const canvas = await html2canvas(document.getElementById('capture-area'), { 
+                scale: 2, // 提高解析度
+                backgroundColor: "#ffffff",
+                useCORS: true
             });
-            const { jsPDF } = window.jspdf; 
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, (canvas.height * pageWidth) / canvas.width);
-            pdf.save(`${new Date().toISOString().slice(0,10).replace(/-/g,"")}_閱讀報告_${name}.pdf`);
+            const link = document.createElement('a');
+            link.download = `${new Date().toISOString().slice(0,10).replace(/-/g,"")}_閱讀報告_${name}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         } catch (e) { 
-            alert("匯出 PDF 失敗。"); 
+            alert("匯出圖片失敗。"); 
         } finally { 
-            // 3. 恢復網頁原本的精美格線樣式
+            // 恢復原本網頁狀態
             textAreas.forEach((ta, index) => {
                 ta.style.height = originalHeights[index];
-                ta.parentElement.style.height = ''; 
-                ta.parentElement.style.minHeight = '';
+                ta.style.overflowY = 'auto';
             });
             document.getElementById('mission-ui').style.display = 'block'; 
-            btn.innerText = "✅ 下載 PDF 報告"; 
+            btn.innerText = "📸 下載報告成品 (圖片格式)"; 
         }
     }
 </script>
